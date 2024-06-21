@@ -13,3 +13,7 @@ Modern Interface: Stylish and responsive web design for user-friendly interactio
 
 Backend: Python with Flask framework for server-side logic.
 Frontend: HTML, CSS for structure and styling, JavaScript for interactive features
+
+# Setup Instructions
+
+run python app.py
