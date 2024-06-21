@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balloon Direction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #007BFF;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        label {
+            text-align: left;
+            margin-bottom: 5px;
+        }
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: calc(100% - 22px);
+        }
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .directions {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .directions p {
+            margin: 5px 0;
+        }
+        .directions span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Balloon Direction</h1>
+        
+        <form id="coordinate-form">
+            <div>
+                <label for="latitude">Latitude:</label>
+                <input type="number" step="any" id="latitude" name="latitude" required>
+            </div>
+            <div>
+                <label for="longitude">Longitude:</label>
+                <input type="number" step="any" id="longitude" name="longitude" required>
+            </div>
+            <div>
+                <label for="altitude">Altitude (meters):</label>
+                <input type="number" step="any" id="altitude" name="altitude" required>
+            </div>
+            <button type="submit">Submit Coordinates</button>
+        </form>
+
+        <div class="directions">
+            <p><strong>Balloon Direction:</strong> <span id="balloon-direction">Waiting for input...</span></p>
+            <p><strong>Ground Direction:</strong> <span id="ground-direction">Waiting for input...</span></p>
+            <p><strong>Elevation Angle (degrees):</strong> <span id="elevation-angle">Waiting for input...</span></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('coordinate-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const latitude = parseFloat(document.getElementById('latitude').value);
+            const longitude = parseFloat(document.getElementById('longitude').value);
+            const altitude = parseFloat(document.getElementById('altitude').value);
+
+            if (isNaN(latitude) || isNaN(longitude) || isNaN(altitude)) {
+                alert("Please enter valid latitude, longitude, and altitude.");
+                return;
+            }
+
+            console.log("Sending data:", { latitude, longitude, altitude });
+
+            fetch('/get_directions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ latitude, longitude, altitude })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Received data:", data);
+
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById('balloon-direction').textContent = data.balloon_direction;
+                    document.getElementById('ground-direction').textContent = data.ground_direction;
+                    document.getElementById('elevation-angle').textContent = data.elevation_angle.toFixed(4) + '°'; // Displaying to 4 decimal places
+                }
+            })
+            .catch(error => console.error('Error fetching directions:', error));
+
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+            document.getElementById('altitude').value = '';
+        });
+    </script>
+</body>
+</html>
